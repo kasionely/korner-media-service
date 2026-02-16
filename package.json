@@ -1,0 +1,35 @@
+{
+  "name": "korner-media-service",
+  "version": "0.1.0",
+  "description": "Korner Media Service — file upload, S3, image compression",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc && echo 'Build completed successfully!'",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "start": "node dist/main.js",
+    "lint": "eslint 'src/**/*.ts' --fix"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@aws-sdk/s3-request-presigner": "^3.540.0",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.12.7",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}
