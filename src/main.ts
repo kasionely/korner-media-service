@@ -24,9 +24,9 @@ app.get("/health", (req, res) => {
 });
 
 // Routes
-app.use("/api/v1/s3", s3Routes);
-app.use("/api/v1/s3-private", s3PrivateRoutes);
-app.use("/api/v1/storage", storageRoutes);
+app.use("/api/s3", s3Routes);
+app.use("/api/s3-private", s3PrivateRoutes);
+app.use("/api/storage", storageRoutes);
 
 // Generic error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
