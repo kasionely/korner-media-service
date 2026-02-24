@@ -1,6 +1,11 @@
 import axios from "axios";
 
-const KORNER_MAIN_URL = process.env.KORNER_MAIN_URL || "http://localhost:3001";
+function ensureProtocol(url: string): string {
+  if (!/^https?:\/\//.test(url)) return `http://${url}`;
+  return url;
+}
+
+const KORNER_MAIN_URL = ensureProtocol(process.env.KORNER_MAIN_URL || "http://localhost:3001");
 
 export interface InternalUser {
   id: number;
