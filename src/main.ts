@@ -13,7 +13,24 @@ const app = express();
 const PORT = process.env.PORT || 3003;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  "https://korner.pro",
+  "https://korner.lol",
+  "https://arsentomsky.indrive.com",
+  "http://localhost:6969",
+];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +44,7 @@ app.get("/health", (req, res) => {
 app.use("/api/s3", s3Routes);
 app.use("/api/s3-private", s3PrivateRoutes);
 app.use("/api/storage", storageRoutes);
+app.use("/api/media", s3Routes);
 
 // Generic error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
