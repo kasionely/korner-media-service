@@ -6,6 +6,7 @@ function ensureProtocol(url: string): string {
 }
 
 const KORNER_MAIN_URL = ensureProtocol(process.env.KORNER_MAIN_URL || "http://localhost:3001");
+console.log("[mainServiceClient] KORNER_MAIN_URL =", KORNER_MAIN_URL);
 
 export interface InternalUser {
   id: number;
@@ -26,6 +27,7 @@ export async function getUserByToken(
     });
     return { user: response.data };
   } catch (error: any) {
+    console.error("[getUserByToken] error:", error.message, "status:", error.response?.status, "url:", `${KORNER_MAIN_URL}/internal/users/me`);
     if (error.response?.status === 401) return { error: "unauthorized" };
     if (error.response?.status === 404) return { error: "not_found" };
     throw error;
