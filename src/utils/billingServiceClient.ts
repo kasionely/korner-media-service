@@ -20,7 +20,8 @@ export async function getActiveSubscriptionInfo(userId: number): Promise<Subscri
       { timeout: 5000 }
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch subscription info for userId:", userId, error instanceof Error ? error.message : error);
     return { hasActiveSubscription: false };
   }
 }
