@@ -5,6 +5,7 @@ import morgan from "morgan";
 
 dotenv.config();
 
+import monetizeRoutes from "./modules/monetize/monetize.routes";
 import s3PrivateRoutes from "./modules/s3-private/s3-private.routes";
 import s3Routes from "./modules/s3/s3.routes";
 import storageRoutes from "./modules/storage/storage.routes";
@@ -41,6 +42,7 @@ app.get("/health", (req, res) => {
 });
 
 // Routes
+app.use("/internal/monetize", monetizeRoutes);
 app.use("/api/s3", s3Routes);
 app.use("/api/s3-private", s3PrivateRoutes);
 app.use("/api/storage", storageRoutes);

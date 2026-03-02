@@ -31,7 +31,7 @@ function extractFileUrlsFromBarDetails(details: any, type: string): string[] {
 
   switch (type) {
     case "Video":
-      if (details.videoUrl && isMonetizableFile(details.videoUrl)) urls.push(details.videoUrl);
+      if (details.link && isMonetizableFile(details.link)) urls.push(details.link);
       break;
     case "Audio":
       if (details.audioUrl && isMonetizableFile(details.audioUrl)) urls.push(details.audioUrl);
@@ -135,7 +135,7 @@ function updateUrlsInBarDetails(details: any, type: string, urlMapping: Map<stri
 
   switch (type) {
     case "Video":
-      if (updatedDetails.videoUrl) updatedDetails.videoUrl = updateUrl(updatedDetails.videoUrl);
+      if (updatedDetails.link) updatedDetails.link = updateUrl(updatedDetails.link);
       break;
     case "Audio":
       if (updatedDetails.audioUrl) updatedDetails.audioUrl = updateUrl(updatedDetails.audioUrl);
@@ -214,7 +214,7 @@ export function getMainContentFileKey(
 
   switch (barType) {
     case "Video":
-      mainFileUrl = details.videoUrl || null;
+      mainFileUrl = details.link || null;
       break;
     case "Audio":
       mainFileUrl = details.audioUrl || null;
