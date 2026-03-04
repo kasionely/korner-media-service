@@ -40,7 +40,7 @@ export async function isBarOwner(userId: number, barId: string): Promise<boolean
   try {
     const response = await axios.get(
       `${KORNER_MAIN_URL}/internal/bars/${barId}/owner?userId=${userId}`,
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
     return response.data?.isOwner === true;
   } catch {
@@ -57,7 +57,7 @@ export async function getBarByFileKey(
   try {
     const response = await axios.get(
       `${KORNER_MAIN_URL}/internal/bars/by-file-key?key=${encodeURIComponent(fileKey)}`,
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
     return response.data || null;
   } catch {

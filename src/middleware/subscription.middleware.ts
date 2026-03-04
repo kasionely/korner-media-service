@@ -144,10 +144,14 @@ export const checkContentAccess = async (
         return;
       }
 
-      const purchaseCheck = await hasUserPurchasedBar(req.user.id, bar.id);
-      if (purchaseCheck) {
-        next();
-        return;
+      try {
+        const purchaseCheck = await hasUserPurchasedBar(req.user.id, bar.id);
+        if (purchaseCheck) {
+          next();
+          return;
+        }
+      } catch (err) {
+        console.error("Purchase check failed, falling back to subscription check:", err instanceof Error ? err.message : err);
       }
     }
 
