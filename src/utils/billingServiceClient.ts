@@ -1,6 +1,11 @@
 import axios from "axios";
 
-const KORNER_BILLING_URL = process.env.KORNER_BILLING_URL || "http://localhost:3002";
+function ensureProtocol(url: string): string {
+  if (!/^https?:\/\//.test(url)) return `http://${url}`;
+  return url;
+}
+
+const KORNER_BILLING_URL = ensureProtocol(process.env.KORNER_BILLING_URL || "http://localhost:3002");
 const BILLING_TIMEOUT = 10000;
 
 export interface SubscriptionInfo {
