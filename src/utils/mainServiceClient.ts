@@ -22,7 +22,7 @@ export async function getUserByToken(
   try {
     const response = await axios.get(`${KORNER_MAIN_URL}/internal/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
-      timeout: 5000,
+      timeout: 10000,
     });
     // Main-service returns { user: { id, username, email, ... } }
     return { user: response.data.user ?? response.data };
