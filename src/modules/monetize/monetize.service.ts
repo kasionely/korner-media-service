@@ -26,12 +26,21 @@ export async function processMonetization({
   monetizedDetails,
 }: MonetizeParams): Promise<MonetizeResult> {
   try {
-    console.log(`Bar ${barId} is being monetized. Moving details files to private bucket...`);
+    console.log(`[monetize] Bar ${barId} (type=${barType}) is being monetized.`);
+    console.log(`[monetize] Input details keys:`, details ? Object.keys(details) : "null");
+    console.log(`[monetize] Input monetizedDetails:`, JSON.stringify(monetizedDetails));
 
     const fileTransferResult = await moveBarFilesToPrivateBucket(barId, barType, details, null);
 
+    console.log(`[monetize] File transfer result:`, {
+      success: fileTransferResult.success,
+      movedFiles: fileTransferResult.movedFiles,
+      hasUpdatedDetails: !!fileTransferResult.updatedDetails,
+      error: fileTransferResult.error,
+    });
+
     if (!fileTransferResult.success) {
-      console.error(`Failed to move files for bar ${barId}:`, fileTransferResult.error);
+      console.error(`[monetize] Failed to move files for bar ${barId}:`, fileTransferResult.error);
       return { success: false, error: fileTransferResult.error };
     }
 
@@ -59,6 +68,8 @@ export async function processMonetization({
     const movedFilesCount = fileTransferResult.movedFiles?.length || 0;
     const contentFileKey = getMainContentFileKey(barType, originalDetailsForKey, movedFilesCount);
 
+    console.log(`[monetize] Key extraction: movedFilesCount=${movedFilesCount}, contentFileKey=${contentFileKey}`);
+
     let finalMonetizedDetails = monetizedDetails;
     if (contentFileKey) {
       const hasValidMonetizedData =
@@ -81,7 +92,11 @@ export async function processMonetization({
           key: contentFileKey,
         };
       }
+    } else {
+      console.warn(`[monetize] No contentFileKey extracted for bar ${barId}. finalMonetizedDetails will not have key from media-service.`);
     }
+
+    console.log(`[monetize] Result: finalMonetizedDetails=`, JSON.stringify(finalMonetizedDetails));
 
     return {
       success: true,

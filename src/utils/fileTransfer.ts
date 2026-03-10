@@ -53,7 +53,7 @@ function isMonetizableFile(url: string): boolean {
     ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".bmp", ".tiff",
     ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv", ".m4v",
     ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".opus",
-    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf",
+    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".csv",
     ".zip", ".rar", ".7z", ".tar", ".gz",
   ];
   return mediaExtensions.some((ext) => lowerUrl.includes(ext));
@@ -95,7 +95,11 @@ async function moveFileToPrivateBucket(
     try {
       fileMetadata = await s3Client.send(headCommand);
     } catch (error: any) {
-      if (error.name === "NotFound" || error.$metadata?.httpStatusCode === 404) return false;
+      if (error.name === "NotFound" || error.$metadata?.httpStatusCode === 404) {
+        console.warn(`[fileTransfer] File not found in ${publicBucket}: ${publicKey}`);
+        return false;
+      }
+      console.error(`[fileTransfer] HeadObject error for ${publicBucket}/${publicKey}:`, error.name, error.message);
       throw error;
     }
 
@@ -167,16 +171,26 @@ export async function moveBarFilesToPrivateBucket(
     const fileUrls = extractFileUrlsFromBarDetails(barDetails, barType);
     if (thumbnail && typeof thumbnail === "string") fileUrls.push(thumbnail);
 
-    if (fileUrls.length === 0) return { success: true, movedFiles: [] };
+    console.log(`[fileTransfer] Bar ${barId} (type=${barType}): extracted ${fileUrls.length} URLs:`, fileUrls);
+
+    if (fileUrls.length === 0) {
+      console.warn(`[fileTransfer] Bar ${barId}: no file URLs extracted. Details:`, JSON.stringify(barDetails));
+      return { success: true, movedFiles: [] };
+    }
 
     const urlMapping = new Map<string, string>();
     const movedFiles: string[] = [];
 
     for (const url of fileUrls) {
       const s3Key = extractS3KeyFromUrl(url);
-      if (!s3Key) continue;
+      if (!s3Key) {
+        console.warn(`[fileTransfer] Bar ${barId}: could not extract S3 key from URL: ${url}`);
+        continue;
+      }
 
+      console.log(`[fileTransfer] Bar ${barId}: moving ${s3Key} from ${publicBucket} to ${privateBucket}`);
       const moved = await moveFileToPrivateBucket(s3Key, s3Key, publicBucket, privateBucket);
+      console.log(`[fileTransfer] Bar ${barId}: move result for ${s3Key}: ${moved}`);
 
       if (moved) {
         const privateCdnDomain =
