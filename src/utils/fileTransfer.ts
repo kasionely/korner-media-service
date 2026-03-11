@@ -227,9 +227,6 @@ export function getMainContentFileKey(
   let mainFileUrl: string | null = null;
 
   switch (barType) {
-    case "Video":
-      mainFileUrl = details.link || null;
-      break;
     case "Audio":
       mainFileUrl = details.audioUrl || null;
       break;

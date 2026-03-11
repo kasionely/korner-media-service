@@ -53,9 +53,6 @@ export async function processMonetization({
         case "File":
           delete detailsCopy.fileUrl;
           break;
-        case "Video":
-          delete detailsCopy.link;
-          break;
         case "Audio":
           delete detailsCopy.audioUrl;
           break;
