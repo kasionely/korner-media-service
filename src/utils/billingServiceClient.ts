@@ -7,6 +7,9 @@ function ensureProtocol(url: string): string {
 
 const KORNER_BILLING_URL = ensureProtocol(process.env.KORNER_BILLING_URL || "http://localhost:3002");
 const BILLING_TIMEOUT = 10000;
+const internalHeaders = {
+  "x-internal-api-key": process.env.INTERNAL_API_KEY || "",
+};
 
 export interface SubscriptionInfo {
   hasActiveSubscription: boolean;
@@ -19,7 +22,7 @@ export interface SubscriptionInfo {
 export async function getActiveSubscriptionInfo(userId: number): Promise<SubscriptionInfo> {
   const url = `${KORNER_BILLING_URL}/internal/subscriptions/active?userId=${userId}`;
   try {
-    const response = await axios.get(url, { timeout: BILLING_TIMEOUT });
+    const response = await axios.get(url, { timeout: BILLING_TIMEOUT, headers: internalHeaders });
     return response.data;
   } catch (error) {
     console.error("[billingClient] Failed to fetch subscription for userId:", userId, error instanceof Error ? error.message : error);
@@ -31,7 +34,7 @@ export async function hasUserPurchasedBar(userId: number, barId: string): Promis
   try {
     const response = await axios.get(
       `${KORNER_BILLING_URL}/internal/purchases/check?userId=${userId}&barId=${barId}`,
-      { timeout: BILLING_TIMEOUT }
+      { timeout: BILLING_TIMEOUT, headers: internalHeaders }
     );
     return response.data?.hasPurchased === true;
   } catch (error) {

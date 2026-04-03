@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { getUsernameFromToken, storageService } from "./storage.service";
 import { ERROR_CODES } from "../../utils/errorCodes";
+import { logger } from "../../utils/logger";
 
 async function getAuthorizedUsername(
   req: Request,
@@ -24,7 +25,7 @@ export async function getUsage(req: Request, res: Response): Promise<void> {
     const result = await storageService.getUsage(username);
     res.status(200).json(result);
   } catch (error) {
-    console.error("Error retrieving storage usage:", error);
+    logger.error("Error retrieving storage usage:", { error: String(error) });
     res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve storage usage" } });
   }
 }
@@ -37,7 +38,7 @@ export async function listFiles(req: Request, res: Response): Promise<void> {
     const result = await storageService.listFiles(username);
     res.status(200).json(result);
   } catch (error) {
-    console.error("Error retrieving file list:", error);
+    logger.error("Error retrieving file list:", { error: String(error) });
     res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file list" } });
   }
 }

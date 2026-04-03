@@ -16,12 +16,16 @@ export interface InternalUser {
 /**
  * Get authenticated user by JWT token (replaces getUserById + verifyToken)
  */
+const internalHeaders = {
+  "x-internal-api-key": process.env.INTERNAL_API_KEY || "",
+};
+
 export async function getUserByToken(
   token: string
 ): Promise<{ user?: InternalUser; error?: string }> {
   try {
     const response = await axios.get(`${KORNER_MAIN_URL}/internal/users/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}`, ...internalHeaders },
       timeout: 10000,
     });
     // Main-service returns { user: { id, username, email, ... } }
@@ -40,7 +44,7 @@ export async function isBarOwner(userId: number, barId: string): Promise<boolean
   try {
     const response = await axios.get(
       `${KORNER_MAIN_URL}/internal/bars/${barId}/owner?userId=${userId}`,
-      { timeout: 10000 }
+      { timeout: 10000, headers: internalHeaders }
     );
     return response.data?.isOwner === true;
   } catch {
@@ -57,7 +61,7 @@ export async function getBarByFileKey(
   try {
     const response = await axios.get(
       `${KORNER_MAIN_URL}/internal/bars/by-file-key?key=${encodeURIComponent(fileKey)}`,
-      { timeout: 10000 }
+      { timeout: 10000, headers: internalHeaders }
     );
     return response.data || null;
   } catch {

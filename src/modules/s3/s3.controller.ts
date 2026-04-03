@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { S3Error, authorizeAndGetUsername, s3Service } from "./s3.service";
 import { ERROR_CODES } from "../../utils/errorCodes";
+import { logger } from "../../utils/logger";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -11,7 +12,7 @@ function handleError(error: unknown, res: Response, logPrefix: string) {
   if (error instanceof S3Error) {
     return res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
   }
-  console.error(`${logPrefix}:`, error);
+  logger.error(`${logPrefix}:`, { error: String(error) });
   return res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal server error" } });
 }
 
@@ -112,7 +113,7 @@ export async function getFile(req: Request, res: Response): Promise<void> {
       res.status(404).json({ error: "File not found" });
       return;
     }
-    console.error("Error retrieving file:", error);
+    logger.error("Error retrieving file:", { error: String(error) });
     res.status(500).json({ error: "Failed to retrieve file" });
   }
 }

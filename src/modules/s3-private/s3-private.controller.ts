@@ -6,12 +6,13 @@ import {
   SubscriptionRequest,
 } from "../../middleware/subscription.middleware";
 import { ERROR_CODES } from "../../utils/errorCodes";
+import { logger } from "../../utils/logger";
 
 function handleError(error: unknown, res: Response, logPrefix: string) {
   if (error instanceof S3PrivateError) {
     return res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
   }
-  console.error(`${logPrefix}:`, error);
+  logger.error(`${logPrefix}:`, { error: String(error) });
   return res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal server error" } });
 }
 

@@ -1,4 +1,5 @@
 import { moveBarFilesToPrivateBucket, getMainContentFileKey } from "../../utils/fileTransfer";
+import { logger } from "../../utils/logger";
 
 interface MonetizeParams {
   barId: string;
@@ -26,13 +27,13 @@ export async function processMonetization({
   monetizedDetails,
 }: MonetizeParams): Promise<MonetizeResult> {
   try {
-    console.log(`[monetize] Bar ${barId} (type=${barType}) is being monetized.`);
-    console.log(`[monetize] Input details keys:`, details ? Object.keys(details) : "null");
-    console.log(`[monetize] Input monetizedDetails:`, JSON.stringify(monetizedDetails));
+    logger.info(`[monetize] Bar ${barId} (type=${barType}) is being monetized.`);
+    logger.info(`[monetize] Input details keys: ${details ? Object.keys(details).join(", ") : "null"}`);
+    logger.info("[monetize] Input monetizedDetails", { data: monetizedDetails });
 
     const fileTransferResult = await moveBarFilesToPrivateBucket(barId, barType, details, null);
 
-    console.log(`[monetize] File transfer result:`, {
+    logger.info("[monetize] File transfer result", {
       success: fileTransferResult.success,
       movedFiles: fileTransferResult.movedFiles,
       hasUpdatedDetails: !!fileTransferResult.updatedDetails,
@@ -40,7 +41,7 @@ export async function processMonetization({
     });
 
     if (!fileTransferResult.success) {
-      console.error(`[monetize] Failed to move files for bar ${barId}:`, fileTransferResult.error);
+      logger.error(`[monetize] Failed to move files for bar ${barId}`, undefined, { error: fileTransferResult.error });
       return { success: false, error: fileTransferResult.error };
     }
 
@@ -65,7 +66,7 @@ export async function processMonetization({
     const movedFilesCount = fileTransferResult.movedFiles?.length || 0;
     const contentFileKey = getMainContentFileKey(barType, originalDetailsForKey, movedFilesCount);
 
-    console.log(`[monetize] Key extraction: movedFilesCount=${movedFilesCount}, contentFileKey=${contentFileKey}`);
+    logger.info(`[monetize] Key extraction: movedFilesCount=${movedFilesCount}, contentFileKey=${contentFileKey}`);
 
     let finalMonetizedDetails = monetizedDetails;
     if (contentFileKey) {
@@ -90,10 +91,10 @@ export async function processMonetization({
         };
       }
     } else {
-      console.warn(`[monetize] No contentFileKey extracted for bar ${barId}. finalMonetizedDetails will not have key from media-service.`);
+      logger.warn(`[monetize] No contentFileKey extracted for bar ${barId}. finalMonetizedDetails will not have key from media-service.`);
     }
 
-    console.log(`[monetize] Result: finalMonetizedDetails=`, JSON.stringify(finalMonetizedDetails));
+    logger.info("[monetize] Result finalMonetizedDetails", { data: finalMonetizedDetails });
 
     return {
       success: true,
@@ -101,7 +102,7 @@ export async function processMonetization({
       finalMonetizedDetails,
     };
   } catch (error) {
-    console.error(`Error processing monetization for bar ${barId}:`, error);
+    logger.error(`Error processing monetization for bar ${barId}:`, { error: String(error) });
     return { success: false, error: (error as Error).message };
   }
 }

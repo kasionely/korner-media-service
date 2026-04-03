@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 
 import { processMonetization } from "./monetize.service";
+import { ERROR_CODES } from "../../utils/errorCodes";
+import { logger } from "../../utils/logger";
 
 export async function monetize(req: Request, res: Response): Promise<void> {
   try {
@@ -8,7 +10,7 @@ export async function monetize(req: Request, res: Response): Promise<void> {
 
     if (!barId || !barType || !details) {
       res.status(400).json({
-        error: { code: "VALIDATION_ERROR", message: "barId, barType, and details are required" },
+        error: { code: ERROR_CODES.VALIDATION_ERROR, message: "barId, barType, and details are required" },
       });
       return;
     }
@@ -22,7 +24,7 @@ export async function monetize(req: Request, res: Response): Promise<void> {
 
     if (!result.success) {
       res.status(500).json({
-        error: { code: "MONETIZATION_FAILED", message: result.error || "Monetization failed" },
+        error: { code: ERROR_CODES.MONETIZATION_FAILED, message: result.error || "Monetization failed" },
       });
       return;
     }
@@ -33,7 +35,7 @@ export async function monetize(req: Request, res: Response): Promise<void> {
       finalMonetizedDetails: result.finalMonetizedDetails,
     });
   } catch (error) {
-    console.error("Error in monetize controller:", error);
-    res.status(500).json({ error: { code: "SERVER_ERROR", message: "Internal error" } });
+    logger.error("Error in monetize controller:", { error: String(error) });
+    res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal error" } });
   }
 }
