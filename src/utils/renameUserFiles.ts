@@ -25,7 +25,11 @@ export async function renameUserFilesInAllBuckets(
 
   const buckets = [
     { name: "AWS S3 Public", client: s3Client, bucket: isProd ? "korner-pro" : "korner-lol" },
-    { name: "AWS S3 Private", client: s3Client, bucket: isProd ? "korner-pro-private" : "korner-lol-private" },
+    {
+      name: "AWS S3 Private",
+      client: s3Client,
+      bucket: isProd ? "korner-pro-private" : "korner-lol-private",
+    },
     { name: "Yandex S3 Public", client: yandexS3, bucket: isProd ? "korner-pro" : "korner-lol" },
   ];
 

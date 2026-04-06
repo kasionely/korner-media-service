@@ -7,11 +7,11 @@ import morgan from "morgan";
 dotenv.config();
 
 import { internalAuthMiddleware } from "./middleware/internalAuthMiddleware";
-import { logger } from "./utils/logger";
 import monetizeRoutes from "./modules/monetize/monetize.routes";
-import s3PrivateRoutes from "./modules/s3-private/s3-private.routes";
 import s3Routes from "./modules/s3/s3.routes";
+import s3PrivateRoutes from "./modules/s3-private/s3-private.routes";
 import storageRoutes from "./modules/storage/storage.routes";
+import { logger } from "./utils/logger";
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -53,7 +53,7 @@ app.use("/api/storage", storageRoutes);
 app.use("/api/media", s3Routes);
 
 // Generic error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error("Unhandled error", { error: err.message, stack: err.stack });
   res.status(500).json({
     error: {

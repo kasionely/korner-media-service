@@ -50,11 +50,45 @@ function extractFileUrlsFromBarDetails(details: any, type: string): string[] {
 function isMonetizableFile(url: string): boolean {
   const lowerUrl = url.toLowerCase();
   const mediaExtensions = [
-    ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".bmp", ".tiff",
-    ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv", ".m4v",
-    ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".opus",
-    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".csv",
-    ".zip", ".rar", ".7z", ".tar", ".gz",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".bmp",
+    ".tiff",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".wmv",
+    ".flv",
+    ".webm",
+    ".mkv",
+    ".m4v",
+    ".mp3",
+    ".wav",
+    ".flac",
+    ".aac",
+    ".ogg",
+    ".wma",
+    ".m4a",
+    ".opus",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".txt",
+    ".rtf",
+    ".csv",
+    ".zip",
+    ".rar",
+    ".7z",
+    ".tar",
+    ".gz",
   ];
   return mediaExtensions.some((ext) => lowerUrl.includes(ext));
 }
@@ -99,7 +133,11 @@ async function moveFileToPrivateBucket(
         console.warn(`[fileTransfer] File not found in ${publicBucket}: ${publicKey}`);
         return false;
       }
-      console.error(`[fileTransfer] HeadObject error for ${publicBucket}/${publicKey}:`, error.name, error.message);
+      console.error(
+        `[fileTransfer] HeadObject error for ${publicBucket}/${publicKey}:`,
+        error.name,
+        error.message
+      );
       throw error;
     }
 
@@ -171,10 +209,16 @@ export async function moveBarFilesToPrivateBucket(
     const fileUrls = extractFileUrlsFromBarDetails(barDetails, barType);
     if (thumbnail && typeof thumbnail === "string") fileUrls.push(thumbnail);
 
-    console.log(`[fileTransfer] Bar ${barId} (type=${barType}): extracted ${fileUrls.length} URLs:`, fileUrls);
+    console.log(
+      `[fileTransfer] Bar ${barId} (type=${barType}): extracted ${fileUrls.length} URLs:`,
+      fileUrls
+    );
 
     if (fileUrls.length === 0) {
-      console.warn(`[fileTransfer] Bar ${barId}: no file URLs extracted. Details:`, JSON.stringify(barDetails));
+      console.warn(
+        `[fileTransfer] Bar ${barId}: no file URLs extracted. Details:`,
+        JSON.stringify(barDetails)
+      );
       return { success: true, movedFiles: [] };
     }
 
@@ -188,7 +232,9 @@ export async function moveBarFilesToPrivateBucket(
         continue;
       }
 
-      console.log(`[fileTransfer] Bar ${barId}: moving ${s3Key} from ${publicBucket} to ${privateBucket}`);
+      console.log(
+        `[fileTransfer] Bar ${barId}: moving ${s3Key} from ${publicBucket} to ${privateBucket}`
+      );
       const moved = await moveFileToPrivateBucket(s3Key, s3Key, publicBucket, privateBucket);
       console.log(`[fileTransfer] Bar ${barId}: move result for ${s3Key}: ${moved}`);
 

@@ -13,7 +13,10 @@ const router = Router();
 const allowedOrigins = ["https://korner.pro", "https://korner.lol", "http://localhost:6969"];
 
 const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  origin: (
+    origin: string | undefined,
+    callback: (_err: Error | null, _allow?: boolean) => void
+  ) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -27,9 +30,32 @@ const corsOptions = {
 
 router.options("*", cors(corsOptions));
 
-router.post("/upload/private/presigned-url", cors(corsOptions), authenticateUser, requireSubscription, s3PrivateController.generateUploadPresignedUrl);
-router.post("/access/presigned-url", cors(corsOptions), authenticateUser, checkContentAccess, s3PrivateController.generateAccessPresignedUrl);
-router.get("/metadata/:key(*)", cors(corsOptions), authenticateUser, checkContentAccess, s3PrivateController.getFileMetadata);
-router.delete("/delete", cors(corsOptions), authenticateUser, s3PrivateController.deletePrivateFile);
+router.post(
+  "/upload/private/presigned-url",
+  cors(corsOptions),
+  authenticateUser,
+  requireSubscription,
+  s3PrivateController.generateUploadPresignedUrl
+);
+router.post(
+  "/access/presigned-url",
+  cors(corsOptions),
+  authenticateUser,
+  checkContentAccess,
+  s3PrivateController.generateAccessPresignedUrl
+);
+router.get(
+  "/metadata/:key(*)",
+  cors(corsOptions),
+  authenticateUser,
+  checkContentAccess,
+  s3PrivateController.getFileMetadata
+);
+router.delete(
+  "/delete",
+  cors(corsOptions),
+  authenticateUser,
+  s3PrivateController.deletePrivateFile
+);
 
 export default router;

@@ -10,23 +10,37 @@ import { logger } from "../../utils/logger";
 
 function handleError(error: unknown, res: Response, logPrefix: string) {
   if (error instanceof S3PrivateError) {
-    return res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
+    return res
+      .status(error.statusCode)
+      .json({ error: { code: error.code, message: error.message } });
   }
   logger.error(`${logPrefix}:`, { error: String(error) });
-  return res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal server error" } });
+  return res
+    .status(500)
+    .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal server error" } });
 }
 
-export async function generateUploadPresignedUrl(req: SubscriptionRequest, res: Response): Promise<void> {
+export async function generateUploadPresignedUrl(
+  req: SubscriptionRequest,
+  res: Response
+): Promise<void> {
   try {
     const { filename, mimetype } = req.body;
-    const result = await s3PrivateService.generateUploadPresignedUrl(req.user!.username, filename, mimetype);
+    const result = await s3PrivateService.generateUploadPresignedUrl(
+      req.user!.username,
+      filename,
+      mimetype
+    );
     res.status(200).json(result);
   } catch (error) {
     handleError(error, res, "Error generating presigned URL");
   }
 }
 
-export async function generateAccessPresignedUrl(req: AuthenticatedRequest, res: Response): Promise<void> {
+export async function generateAccessPresignedUrl(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
   try {
     const { key } = req.body;
     const result = await s3PrivateService.generateAccessPresignedUrl(key);

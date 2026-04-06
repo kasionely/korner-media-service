@@ -7,7 +7,12 @@ import { compressImage } from "../../utils/imageCompressor";
 import { verifyAccessToken } from "../../utils/jwt";
 import { getUserByToken } from "../../utils/mainServiceClient";
 import redis from "../../utils/redis";
-import { cacheFileToRedis, deleteFromBothBuckets, streamToBuffer, uploadToBothBuckets } from "../../utils/s3.utils";
+import {
+  cacheFileToRedis,
+  deleteFromBothBuckets,
+  streamToBuffer,
+  uploadToBothBuckets,
+} from "../../utils/s3.utils";
 import yandexS3 from "../../utils/ys3";
 
 export class S3Error extends Error {
@@ -32,7 +37,12 @@ export async function authorizeAndGetUsername(
   token: string | undefined
 ): Promise<{ username?: string; error?: { code: string; message: string } }> {
   if (!token) {
-    return { error: { code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED, message: "Authorization token required" } };
+    return {
+      error: {
+        code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED,
+        message: "Authorization token required",
+      },
+    };
   }
 
   const decoded = verifyAccessToken(token);
@@ -62,7 +72,11 @@ class S3Service {
 
     const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedImageTypes.includes(file.mimetype)) {
-      throw new S3Error(ERROR_CODES.BARS_INVALID_FILE_TYPE, "Invalid image type. Allowed: JPEG, PNG, GIF, WEBP", 400);
+      throw new S3Error(
+        ERROR_CODES.BARS_INVALID_FILE_TYPE,
+        "Invalid image type. Allowed: JPEG, PNG, GIF, WEBP",
+        400
+      );
     }
 
     const compressed = await compressImage({
@@ -90,7 +104,11 @@ class S3Service {
 
     const allowedAudioTypes = ["audio/mpeg", "audio/wav", "audio/wave"];
     if (!allowedAudioTypes.includes(file.mimetype)) {
-      throw new S3Error(ERROR_CODES.BARS_INVALID_FILE_TYPE, "Invalid audio type. Allowed: MP3, WAV", 400);
+      throw new S3Error(
+        ERROR_CODES.BARS_INVALID_FILE_TYPE,
+        "Invalid audio type. Allowed: MP3, WAV",
+        400
+      );
     }
 
     const outputFilename = generateSafeFilename(file.originalname, file.mimetype);
@@ -106,7 +124,11 @@ class S3Service {
 
     const allowedVideoTypes = ["video/mp4", "video/webm"];
     if (!allowedVideoTypes.includes(file.mimetype)) {
-      throw new S3Error(ERROR_CODES.BARS_INVALID_FILE_TYPE, "Invalid video type. Allowed: MP4, WEBM", 400);
+      throw new S3Error(
+        ERROR_CODES.BARS_INVALID_FILE_TYPE,
+        "Invalid video type. Allowed: MP4, WEBM",
+        400
+      );
     }
 
     const outputFilename = generateSafeFilename(file.originalname, file.mimetype);
@@ -127,7 +149,11 @@ class S3Service {
       "text/csv",
     ];
     if (!allowedTypes.includes(file.mimetype)) {
-      throw new S3Error(ERROR_CODES.BARS_INVALID_FILE_TYPE, "Invalid file type. Allowed: PDF, XLS, XLSX, CSV", 400);
+      throw new S3Error(
+        ERROR_CODES.BARS_INVALID_FILE_TYPE,
+        "Invalid file type. Allowed: PDF, XLS, XLSX, CSV",
+        400
+      );
     }
 
     const outputFilename = generateSafeFilename(file.originalname, file.mimetype);
@@ -201,7 +227,11 @@ class S3Service {
     }
 
     if (!key || !key.startsWith(`${username}/`)) {
-      throw new S3Error(ERROR_CODES.BARS_ACCESS_DENIED, "You can only delete files from your own directory", 403);
+      throw new S3Error(
+        ERROR_CODES.BARS_ACCESS_DENIED,
+        "You can only delete files from your own directory",
+        403
+      );
     }
 
     await deleteFromBothBuckets(username, key);

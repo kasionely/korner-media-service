@@ -10,6 +10,7 @@ export default [
     ignores: [
       "dist/**/*",
       "src/migrations/**/*.js",
+      "src/types/**/*.d.ts",
       "linksTracking.js",
       "node_modules/**/*",
     ],
@@ -43,6 +44,7 @@ export default [
         URL: "readonly",
         URLSearchParams: "readonly",
         NodeJS: "readonly",
+        Express: "readonly",
       },
     },
     plugins: {
@@ -51,7 +53,8 @@ export default [
       prettier: prettierPlugin,
     },
     rules: {
-      quotes: ["error", "double"],
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      quotes: ["error", "double", { avoidEscape: true }],
       "import/order": [
         "error",
         {

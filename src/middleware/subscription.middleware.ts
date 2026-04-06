@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 
+import { getActiveSubscriptionInfo, hasUserPurchasedBar } from "../utils/billingServiceClient";
 import { ERROR_CODES } from "../utils/errorCodes";
 import { verifyAccessToken } from "../utils/jwt";
 import { getUserByToken, isBarOwner, getBarByFileKey } from "../utils/mainServiceClient";
-import { getActiveSubscriptionInfo, hasUserPurchasedBar } from "../utils/billingServiceClient";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -34,7 +34,10 @@ export const authenticateUser = async (
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       res.status(401).json({
-        error: { code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED, message: "Authorization token required" },
+        error: {
+          code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED,
+          message: "Authorization token required",
+        },
       });
       return;
     }
@@ -151,7 +154,10 @@ export const checkContentAccess = async (
           return;
         }
       } catch (err) {
-        console.error("Purchase check failed, falling back to subscription check:", err instanceof Error ? err.message : err);
+        console.error(
+          "Purchase check failed, falling back to subscription check:",
+          err instanceof Error ? err.message : err
+        );
       }
     }
 

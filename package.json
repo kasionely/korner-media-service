@@ -7,7 +7,19 @@
     "build": "tsc && echo 'Build completed successfully!'",
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "start": "node dist/main.js",
-    "lint": "eslint 'src/**/*.ts' --fix"
+    "lint": "eslint 'src/**/*.ts' --fix",
+    "test": "vitest run",
+    "test:contracts": "vitest run src/modules/**/__tests__/*.contracts.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix"
+    ],
+    "src/modules/**/*.validation.ts": [
+      "bash -c 'npm run test:contracts'"
+    ]
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",
@@ -22,7 +34,8 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "sharp": "^0.33.3"
+    "sharp": "^0.33.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
@@ -38,8 +51,11 @@
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.5.3",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }

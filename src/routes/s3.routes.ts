@@ -23,7 +23,10 @@ const router = Router();
 const allowedOrigins = ["https://korner.pro", "https://korner.lol", "http://localhost:6969"];
 
 const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  origin: (
+    origin: string | undefined,
+    callback: (_err: Error | null, _allow?: boolean) => void
+  ) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -54,7 +57,10 @@ async function authorizeAndGetUsername(
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return {
-      error: { code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED, message: "Authorization token required" },
+      error: {
+        code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED,
+        message: "Authorization token required",
+      },
     };
   }
 
@@ -93,20 +99,27 @@ router.post(
 
       const username = authResult.username!;
       if (!req.file) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No image file provided" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No image file provided" } });
         return;
       }
 
       const maxImageSize = 5 * 1024 * 1024;
       if (req.file.size > maxImageSize) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "Image file size exceeds 5 MB limit" } });
+        res.status(400).json({
+          error: { code: ERROR_CODES.BAD_REQUEST, message: "Image file size exceeds 5 MB limit" },
+        });
         return;
       }
 
       const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedImageTypes.includes(req.file.mimetype)) {
         res.status(400).json({
-          error: { code: ERROR_CODES.BARS_INVALID_FILE_TYPE, message: "Invalid image type. Allowed: JPEG, PNG, GIF, WEBP" },
+          error: {
+            code: ERROR_CODES.BARS_INVALID_FILE_TYPE,
+            message: "Invalid image type. Allowed: JPEG, PNG, GIF, WEBP",
+          },
         });
         return;
       }
@@ -133,7 +146,9 @@ router.post(
       res.status(200).json({ message: "Image uploaded successfully", url });
     } catch (error) {
       console.error("Error processing image:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process image" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process image" } });
     }
   }
 );
@@ -146,36 +161,55 @@ router.post(
     try {
       const authResult = await authorizeAndGetUsername(req);
       if (authResult.error) {
-        res.status(authResult.error.code.startsWith("AUTH") ? 401 : 404).json({ error: authResult.error });
+        res
+          .status(authResult.error.code.startsWith("AUTH") ? 401 : 404)
+          .json({ error: authResult.error });
         return;
       }
 
       const username = authResult.username!;
       if (!req.file) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No audio file provided" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No audio file provided" } });
         return;
       }
 
       const maxAudioSize = 100 * 1024 * 1024;
       if (req.file.size > maxAudioSize) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "Audio file size exceeds 100 MB limit" } });
+        res.status(400).json({
+          error: {
+            code: ERROR_CODES.BAD_REQUEST,
+            message: "Audio file size exceeds 100 MB limit",
+          },
+        });
         return;
       }
 
       const allowedAudioTypes = ["audio/mpeg", "audio/wav", "audio/wave"];
       if (!allowedAudioTypes.includes(req.file.mimetype)) {
         res.status(400).json({
-          error: { code: ERROR_CODES.BARS_INVALID_FILE_TYPE, message: "Invalid audio type. Allowed: MP3, WAV" },
+          error: {
+            code: ERROR_CODES.BARS_INVALID_FILE_TYPE,
+            message: "Invalid audio type. Allowed: MP3, WAV",
+          },
         });
         return;
       }
 
       const outputFilename = generateSafeFilename(req.file.originalname, req.file.mimetype);
-      const url = await uploadToBothBuckets(username, req.file.buffer, outputFilename, req.file.mimetype);
+      const url = await uploadToBothBuckets(
+        username,
+        req.file.buffer,
+        outputFilename,
+        req.file.mimetype
+      );
       res.status(200).json({ message: "Audio uploaded successfully", url });
     } catch (error) {
       console.error("Error processing audio:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process audio" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process audio" } });
     }
   }
 );
@@ -188,36 +222,55 @@ router.post(
     try {
       const authResult = await authorizeAndGetUsername(req);
       if (authResult.error) {
-        res.status(authResult.error.code.startsWith("AUTH") ? 401 : 404).json({ error: authResult.error });
+        res
+          .status(authResult.error.code.startsWith("AUTH") ? 401 : 404)
+          .json({ error: authResult.error });
         return;
       }
 
       const username = authResult.username!;
       if (!req.file) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No video file provided" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No video file provided" } });
         return;
       }
 
       const maxVideoSize = 100 * 1024 * 1024;
       if (req.file.size > maxVideoSize) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "Video file size exceeds 100 MB limit" } });
+        res.status(400).json({
+          error: {
+            code: ERROR_CODES.BAD_REQUEST,
+            message: "Video file size exceeds 100 MB limit",
+          },
+        });
         return;
       }
 
       const allowedVideoTypes = ["video/mp4", "video/webm"];
       if (!allowedVideoTypes.includes(req.file.mimetype)) {
         res.status(400).json({
-          error: { code: ERROR_CODES.BARS_INVALID_FILE_TYPE, message: "Invalid video type. Allowed: MP4, WEBM" },
+          error: {
+            code: ERROR_CODES.BARS_INVALID_FILE_TYPE,
+            message: "Invalid video type. Allowed: MP4, WEBM",
+          },
         });
         return;
       }
 
       const outputFilename = generateSafeFilename(req.file.originalname, req.file.mimetype);
-      const url = await uploadToBothBuckets(username, req.file.buffer, outputFilename, req.file.mimetype);
+      const url = await uploadToBothBuckets(
+        username,
+        req.file.buffer,
+        outputFilename,
+        req.file.mimetype
+      );
       res.status(200).json({ message: "Video uploaded successfully", url });
     } catch (error) {
       console.error("Error processing video:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process video" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process video" } });
     }
   }
 );
@@ -230,19 +283,25 @@ router.post(
     try {
       const authResult = await authorizeAndGetUsername(req);
       if (authResult.error) {
-        res.status(authResult.error.code.startsWith("AUTH") ? 401 : 404).json({ error: authResult.error });
+        res
+          .status(authResult.error.code.startsWith("AUTH") ? 401 : 404)
+          .json({ error: authResult.error });
         return;
       }
 
       const username = authResult.username!;
       if (!req.file) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No file provided" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No file provided" } });
         return;
       }
 
       const maxFileSize = 15 * 1024 * 1024;
       if (req.file.size > maxFileSize) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File size exceeds 15 MB limit" } });
+        res.status(400).json({
+          error: { code: ERROR_CODES.BAD_REQUEST, message: "File size exceeds 15 MB limit" },
+        });
         return;
       }
 
@@ -254,17 +313,27 @@ router.post(
       ];
       if (!allowedTypes.includes(req.file.mimetype)) {
         res.status(400).json({
-          error: { code: ERROR_CODES.BARS_INVALID_FILE_TYPE, message: "Invalid file type. Allowed: PDF, XLS, XLSX, CSV" },
+          error: {
+            code: ERROR_CODES.BARS_INVALID_FILE_TYPE,
+            message: "Invalid file type. Allowed: PDF, XLS, XLSX, CSV",
+          },
         });
         return;
       }
 
       const outputFilename = generateSafeFilename(req.file.originalname, req.file.mimetype);
-      const url = await uploadToBothBuckets(username, req.file.buffer, outputFilename, req.file.mimetype);
+      const url = await uploadToBothBuckets(
+        username,
+        req.file.buffer,
+        outputFilename,
+        req.file.mimetype
+      );
       res.status(200).json({ message: "File uploaded successfully", url });
     } catch (error) {
       console.error("Error processing file:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process file" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to process file" } });
     }
   }
 );
@@ -280,8 +349,10 @@ router.get("/:key", async (req: Request, res: Response): Promise<void> => {
       const cachedMetadata = await redis.hgetall(metadataKey);
       if (cachedMetadata?.ContentType) {
         res.setHeader("Content-Type", cachedMetadata.ContentType);
-        if (cachedMetadata.ContentLength) res.setHeader("Content-Length", cachedMetadata.ContentLength);
-        if (cachedMetadata.LastModified) res.setHeader("Last-Modified", cachedMetadata.LastModified);
+        if (cachedMetadata.ContentLength)
+          res.setHeader("Content-Length", cachedMetadata.ContentLength);
+        if (cachedMetadata.LastModified)
+          res.setHeader("Last-Modified", cachedMetadata.LastModified);
         res.setHeader("Cache-Control", "public, max-age=31536000");
         res.end(cached);
         return;
@@ -319,7 +390,9 @@ router.get(
       const { username, filename } = req.params;
 
       if (!filename || /[^\w\-._~]/.test(filename)) {
-        res.status(400).json({ error: { code: ERROR_CODES.BARS_INVALID_INPUT, message: "Invalid filename" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BARS_INVALID_INPUT, message: "Invalid filename" } });
         return;
       }
 
@@ -329,7 +402,9 @@ router.get(
       const { Body, ContentType, ContentLength, LastModified } = await yandexS3.send(command);
 
       if (!Body) {
-        res.status(404).json({ error: { code: ERROR_CODES.BARS_FILE_NOT_FOUND, message: "File not found" } });
+        res
+          .status(404)
+          .json({ error: { code: ERROR_CODES.BARS_FILE_NOT_FOUND, message: "File not found" } });
         return;
       }
 
@@ -340,7 +415,9 @@ router.get(
       (Body as any).pipe(res);
     } catch (error) {
       console.error("Error streaming file:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file" } });
     }
   }
 );
@@ -353,7 +430,9 @@ router.delete(
     try {
       const authResult = await authorizeAndGetUsername(req);
       if (authResult.error) {
-        res.status(authResult.error.code.startsWith("AUTH") ? 401 : 404).json({ error: authResult.error });
+        res
+          .status(authResult.error.code.startsWith("AUTH") ? 401 : 404)
+          .json({ error: authResult.error });
         return;
       }
 
@@ -361,7 +440,12 @@ router.delete(
       const { url } = req.body;
 
       if (!url || typeof url !== "string") {
-        res.status(400).json({ error: { code: ERROR_CODES.BARS_INVALID_INPUT, message: "URL must be a non-empty string" } });
+        res.status(400).json({
+          error: {
+            code: ERROR_CODES.BARS_INVALID_INPUT,
+            message: "URL must be a non-empty string",
+          },
+        });
         return;
       }
 
@@ -370,13 +454,18 @@ router.delete(
         const urlObj = new URL(url);
         key = urlObj.pathname.replace(/^\//, "");
       } catch {
-        res.status(400).json({ error: { code: ERROR_CODES.BARS_INVALID_INPUT, message: "Invalid URL format" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BARS_INVALID_INPUT, message: "Invalid URL format" } });
         return;
       }
 
       if (!key || !key.startsWith(`${username}/`)) {
         res.status(403).json({
-          error: { code: ERROR_CODES.BARS_ACCESS_DENIED, message: "You can only delete files from your own directory" },
+          error: {
+            code: ERROR_CODES.BARS_ACCESS_DENIED,
+            message: "You can only delete files from your own directory",
+          },
         });
         return;
       }
@@ -385,7 +474,9 @@ router.delete(
       res.status(200).json({ message: "File deleted successfully", key });
     } catch (error) {
       console.error("Error deleting file:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to delete file" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to delete file" } });
     }
   }
 );

@@ -35,7 +35,14 @@ export async function compressImage({ buffer, filePath, filename, mimetype }: Pr
       if (isAnimated) {
         try {
           const compressedGif = await sharpInstance
-            .gif({ colours: 192, effort: 6, dither: 1.0, interFrameMaxError: 3, interPaletteMaxError: 8, reuse: true })
+            .gif({
+              colours: 192,
+              effort: 6,
+              dither: 1.0,
+              interFrameMaxError: 3,
+              interPaletteMaxError: 8,
+              reuse: true,
+            })
             .toBuffer();
 
           if (compressedGif.length < originalSize) {

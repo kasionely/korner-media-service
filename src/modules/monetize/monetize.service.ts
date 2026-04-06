@@ -28,7 +28,9 @@ export async function processMonetization({
 }: MonetizeParams): Promise<MonetizeResult> {
   try {
     logger.info(`[monetize] Bar ${barId} (type=${barType}) is being monetized.`);
-    logger.info(`[monetize] Input details keys: ${details ? Object.keys(details).join(", ") : "null"}`);
+    logger.info(
+      `[monetize] Input details keys: ${details ? Object.keys(details).join(", ") : "null"}`
+    );
     logger.info("[monetize] Input monetizedDetails", { data: monetizedDetails });
 
     const fileTransferResult = await moveBarFilesToPrivateBucket(barId, barType, details, null);
@@ -41,7 +43,9 @@ export async function processMonetization({
     });
 
     if (!fileTransferResult.success) {
-      logger.error(`[monetize] Failed to move files for bar ${barId}`, undefined, { error: fileTransferResult.error });
+      logger.error(`[monetize] Failed to move files for bar ${barId}`, undefined, {
+        error: fileTransferResult.error,
+      });
       return { success: false, error: fileTransferResult.error };
     }
 
@@ -66,7 +70,9 @@ export async function processMonetization({
     const movedFilesCount = fileTransferResult.movedFiles?.length || 0;
     const contentFileKey = getMainContentFileKey(barType, originalDetailsForKey, movedFilesCount);
 
-    logger.info(`[monetize] Key extraction: movedFilesCount=${movedFilesCount}, contentFileKey=${contentFileKey}`);
+    logger.info(
+      `[monetize] Key extraction: movedFilesCount=${movedFilesCount}, contentFileKey=${contentFileKey}`
+    );
 
     let finalMonetizedDetails = monetizedDetails;
     if (contentFileKey) {
@@ -91,7 +97,9 @@ export async function processMonetization({
         };
       }
     } else {
-      logger.warn(`[monetize] No contentFileKey extracted for bar ${barId}. finalMonetizedDetails will not have key from media-service.`);
+      logger.warn(
+        `[monetize] No contentFileKey extracted for bar ${barId}. finalMonetizedDetails will not have key from media-service.`
+      );
     }
 
     logger.info("[monetize] Result finalMonetizedDetails", { data: finalMonetizedDetails });

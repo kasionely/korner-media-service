@@ -10,16 +10,17 @@ interface MulterRequest extends Request {
 
 function handleError(error: unknown, res: Response, logPrefix: string) {
   if (error instanceof S3Error) {
-    return res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
+    return res
+      .status(error.statusCode)
+      .json({ error: { code: error.code, message: error.message } });
   }
   logger.error(`${logPrefix}:`, { error: String(error) });
-  return res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal server error" } });
+  return res
+    .status(500)
+    .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Internal server error" } });
 }
 
-async function getAuthorizedUsername(
-  req: Request,
-  res: Response
-): Promise<string | null> {
+async function getAuthorizedUsername(req: Request, res: Response): Promise<string | null> {
   const token = req.headers.authorization?.split(" ")[1];
   const authResult = await authorizeAndGetUsername(token);
   if (authResult.error) {
@@ -36,7 +37,9 @@ export async function uploadImage(req: MulterRequest, res: Response): Promise<vo
     if (!username) return;
 
     if (!req.file) {
-      res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No image file provided" } });
+      res
+        .status(400)
+        .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No image file provided" } });
       return;
     }
 
@@ -53,7 +56,9 @@ export async function uploadAudio(req: MulterRequest, res: Response): Promise<vo
     if (!username) return;
 
     if (!req.file) {
-      res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No audio file provided" } });
+      res
+        .status(400)
+        .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No audio file provided" } });
       return;
     }
 
@@ -70,7 +75,9 @@ export async function uploadVideo(req: MulterRequest, res: Response): Promise<vo
     if (!username) return;
 
     if (!req.file) {
-      res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No video file provided" } });
+      res
+        .status(400)
+        .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No video file provided" } });
       return;
     }
 
@@ -87,7 +94,9 @@ export async function uploadFile(req: MulterRequest, res: Response): Promise<voi
     if (!username) return;
 
     if (!req.file) {
-      res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No file provided" } });
+      res
+        .status(400)
+        .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "No file provided" } });
       return;
     }
 
@@ -104,8 +113,10 @@ export async function getFile(req: Request, res: Response): Promise<void> {
     const result = await s3Service.getFile(key);
 
     res.setHeader("Content-Type", result.metadata.ContentType as string);
-    if (result.metadata.ContentLength) res.setHeader("Content-Length", result.metadata.ContentLength as string);
-    if (result.metadata.LastModified) res.setHeader("Last-Modified", result.metadata.LastModified as string);
+    if (result.metadata.ContentLength)
+      res.setHeader("Content-Length", result.metadata.ContentLength as string);
+    if (result.metadata.LastModified)
+      res.setHeader("Last-Modified", result.metadata.LastModified as string);
     res.setHeader("Cache-Control", "public, max-age=31536000");
     res.end(result.buffer);
   } catch (error) {
@@ -118,7 +129,10 @@ export async function getFile(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function getFileByPath(req: Request<{ username: string; filename: string }>, res: Response): Promise<void> {
+export async function getFileByPath(
+  req: Request<{ username: string; filename: string }>,
+  res: Response
+): Promise<void> {
   try {
     const { username, filename } = req.params;
     const result = await s3Service.getFileByPath(username, filename);
@@ -133,7 +147,10 @@ export async function getFileByPath(req: Request<{ username: string; filename: s
   }
 }
 
-export async function deleteFile(req: Request<{}, {}, { url: string }>, res: Response): Promise<void> {
+export async function deleteFile(
+  req: Request<{}, {}, { url: string }>,
+  res: Response
+): Promise<void> {
   try {
     const username = await getAuthorizedUsername(req, res);
     if (!username) return;

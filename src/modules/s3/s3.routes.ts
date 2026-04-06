@@ -10,7 +10,10 @@ const router = Router();
 const allowedOrigins = ["https://korner.pro", "https://korner.lol", "http://localhost:6969"];
 
 const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  origin: (
+    origin: string | undefined,
+    callback: (_err: Error | null, _allow?: boolean) => void
+  ) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -37,12 +40,41 @@ const uploadLimiter = rateLimit({
 
 router.options("*", cors(corsOptions));
 
-router.post("/upload/image", cors(corsOptions), uploadLimiter, upload.single("image"), s3Controller.uploadImage);
-router.post("/upload/audio", cors(corsOptions), uploadLimiter, upload.single("audio"), s3Controller.uploadAudio);
-router.post("/upload/video", cors(corsOptions), uploadLimiter, upload.single("video"), s3Controller.uploadVideo);
-router.post("/upload/file", cors(corsOptions), uploadLimiter, upload.single("file"), s3Controller.uploadFile);
+router.post(
+  "/upload/image",
+  cors(corsOptions),
+  uploadLimiter,
+  upload.single("image"),
+  s3Controller.uploadImage
+);
+router.post(
+  "/upload/audio",
+  cors(corsOptions),
+  uploadLimiter,
+  upload.single("audio"),
+  s3Controller.uploadAudio
+);
+router.post(
+  "/upload/video",
+  cors(corsOptions),
+  uploadLimiter,
+  upload.single("video"),
+  s3Controller.uploadVideo
+);
+router.post(
+  "/upload/file",
+  cors(corsOptions),
+  uploadLimiter,
+  upload.single("file"),
+  s3Controller.uploadFile
+);
 router.get("/:key", s3Controller.getFile);
 router.get("/:username/:filename", s3Controller.getFileByPath);
-router.delete("/delete", cors(corsOptions), express.json({ limit: "50mb" }), s3Controller.deleteFile);
+router.delete(
+  "/delete",
+  cors(corsOptions),
+  express.json({ limit: "50mb" }),
+  s3Controller.deleteFile
+);
 
 export default router;

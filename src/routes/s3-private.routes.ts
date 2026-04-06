@@ -26,7 +26,7 @@ const allowedOrigins = ["https://korner.pro", "https://korner.lol", "http://loca
 const corsOptions = {
   origin: (
     origin: string | undefined,
-    callback: (error: Error | null, allow?: boolean) => void
+    callback: (_error: Error | null, _allow?: boolean) => void
   ) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -100,7 +100,9 @@ router.post(
       const { key } = req.body;
 
       if (!key) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File key is required" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File key is required" } });
         return;
       }
 
@@ -140,7 +142,9 @@ router.get(
       const { key } = req.params;
 
       if (!key) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File key is required" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File key is required" } });
         return;
       }
 
@@ -164,11 +168,15 @@ router.get(
       });
     } catch (error: any) {
       if (error.name === "NotFound" || error.$metadata?.httpStatusCode === 404) {
-        res.status(404).json({ error: { code: ERROR_CODES.BARS_FILE_NOT_FOUND, message: "File not found" } });
+        res
+          .status(404)
+          .json({ error: { code: ERROR_CODES.BARS_FILE_NOT_FOUND, message: "File not found" } });
         return;
       }
       console.error("Error retrieving file metadata:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file metadata" } });
+      res.status(500).json({
+        error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file metadata" },
+      });
     }
   }
 );
@@ -182,14 +190,19 @@ router.delete(
       const key = req.query.key as string;
 
       if (!key) {
-        res.status(400).json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File key is required" } });
+        res
+          .status(400)
+          .json({ error: { code: ERROR_CODES.BAD_REQUEST, message: "File key is required" } });
         return;
       }
 
       const userPrefix = `${req.user!.username}/`;
       if (!key.startsWith(userPrefix)) {
         res.status(403).json({
-          error: { code: ERROR_CODES.ACCESS_DENIED, message: "You do not have permission to delete this file" },
+          error: {
+            code: ERROR_CODES.ACCESS_DENIED,
+            message: "You do not have permission to delete this file",
+          },
         });
         return;
       }
@@ -202,7 +215,9 @@ router.delete(
         await s3Client.send(headCommand);
       } catch (error: any) {
         if (error.name === "NotFound" || error.$metadata?.httpStatusCode === 404) {
-          res.status(404).json({ error: { code: ERROR_CODES.FILE_NOT_FOUND, message: "File not found" } });
+          res
+            .status(404)
+            .json({ error: { code: ERROR_CODES.FILE_NOT_FOUND, message: "File not found" } });
           return;
         }
         throw error;
@@ -214,7 +229,9 @@ router.delete(
       res.status(200).json({ success: true, message: "File deleted successfully", key });
     } catch (error: any) {
       console.error("Error deleting file:", error);
-      res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to delete file" } });
+      res
+        .status(500)
+        .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to delete file" } });
     }
   }
 );

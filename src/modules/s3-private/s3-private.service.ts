@@ -111,7 +111,11 @@ class S3PrivateService {
     }
 
     if (!key.startsWith(`${username}/`)) {
-      throw new S3PrivateError(ERROR_CODES.ACCESS_DENIED, "You do not have permission to delete this file", 403);
+      throw new S3PrivateError(
+        ERROR_CODES.ACCESS_DENIED,
+        "You do not have permission to delete this file",
+        403
+      );
     }
 
     try {

@@ -12,17 +12,27 @@ async function getUsernameFromRequest(
 ): Promise<{ username?: string; error?: { status: number; code: string; message: string } }> {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
-    return { error: { status: 401, code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED, message: "Authorization token required" } };
+    return {
+      error: {
+        status: 401,
+        code: ERROR_CODES.BASE_AUTH_TOKEN_REQUIRED,
+        message: "Authorization token required",
+      },
+    };
   }
 
   const { user, error } = await getUserByToken(token);
 
   if (error === "not_found" || !user || !user.username) {
-    return { error: { status: 404, code: ERROR_CODES.PROFILE_NOTFOUND, message: "User profile not found" } };
+    return {
+      error: { status: 404, code: ERROR_CODES.PROFILE_NOTFOUND, message: "User profile not found" },
+    };
   }
 
   if (error === "unauthorized") {
-    return { error: { status: 401, code: ERROR_CODES.BASE_INVALID_ACCESS_TOKEN, message: "Invalid token" } };
+    return {
+      error: { status: 401, code: ERROR_CODES.BASE_INVALID_ACCESS_TOKEN, message: "Invalid token" },
+    };
   }
 
   return { username: user.username };
@@ -64,7 +74,9 @@ router.get("/usage", authMiddleware, async (req: Request, res: Response): Promis
     });
   } catch (error) {
     console.error("Error retrieving storage usage:", error);
-    res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve storage usage" } });
+    res.status(500).json({
+      error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve storage usage" },
+    });
   }
 });
 
@@ -93,7 +105,9 @@ router.get("/list", authMiddleware, async (req: Request, res: Response): Promise
     });
   } catch (error) {
     console.error("Error retrieving file list:", error);
-    res.status(500).json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file list" } });
+    res
+      .status(500)
+      .json({ error: { code: ERROR_CODES.SERVER_ERROR, message: "Failed to retrieve file list" } });
   }
 });
 

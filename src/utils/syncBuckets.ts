@@ -1,8 +1,4 @@
-import {
-  ListObjectsV2Command,
-  GetObjectCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { Readable } from "stream";
 
 import yandexS3 from "./ys3";

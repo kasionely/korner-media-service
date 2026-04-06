@@ -10,7 +10,10 @@ export async function monetize(req: Request, res: Response): Promise<void> {
 
     if (!barId || !barType || !details) {
       res.status(400).json({
-        error: { code: ERROR_CODES.VALIDATION_ERROR, message: "barId, barType, and details are required" },
+        error: {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: "barId, barType, and details are required",
+        },
       });
       return;
     }
@@ -24,7 +27,10 @@ export async function monetize(req: Request, res: Response): Promise<void> {
 
     if (!result.success) {
       res.status(500).json({
-        error: { code: ERROR_CODES.MONETIZATION_FAILED, message: result.error || "Monetization failed" },
+        error: {
+          code: ERROR_CODES.MONETIZATION_FAILED,
+          message: result.error || "Monetization failed",
+        },
       });
       return;
     }
