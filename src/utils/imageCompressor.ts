@@ -31,39 +31,19 @@ export async function compressImage({ buffer, filePath, filename, mimetype }: Pr
     const metadata = await sharpInstance.metadata();
     const isAnimated = metadata.pages && metadata.pages > 1;
 
-    if (mimetype === "image/gif") {
-      if (isAnimated) {
-        try {
-          const compressedGif = await sharpInstance
-            .gif({
-              colours: 192,
-              effort: 6,
-              dither: 1.0,
-              interFrameMaxError: 3,
-              interPaletteMaxError: 8,
-              reuse: true,
-            })
-            .toBuffer();
+    if (mimetype === "image/gif" && isAnimated) {
+      try {
+        const compressedWebp = await sharpInstance
+          .webp({
+            quality: imageQuality,
+            effort: 6,
+            alphaQuality: imageQuality,
+            smartSubsample: true,
+            animated: true,
+          })
+          .toBuffer();
 
-          if (compressedGif.length < originalSize) {
-            return {
-              success: true,
-              buffer: compressedGif,
-              outputFilename: `compressed-${Date.now()}-${filename}`,
-              isAnimated: true,
-              skipConversion: false,
-            };
-          } else {
-            return {
-              success: true,
-              buffer: buffer!,
-              outputFilename: `${Date.now()}-${filename}`,
-              isAnimated: true,
-              skipConversion: true,
-            };
-          }
-        } catch (error) {
-          console.warn("Error compressing animated GIF, returning original:", error);
+        if (originalSize > 0 && compressedWebp.length >= originalSize) {
           return {
             success: true,
             buffer: buffer!,
@@ -72,8 +52,24 @@ export async function compressImage({ buffer, filePath, filename, mimetype }: Pr
             skipConversion: true,
           };
         }
+
+        return {
+          success: true,
+          buffer: compressedWebp,
+          outputFilename,
+          isAnimated: true,
+          skipConversion: false,
+        };
+      } catch (error) {
+        console.warn("Error converting animated GIF to WebP, returning original:", error);
+        return {
+          success: true,
+          buffer: buffer!,
+          outputFilename: `${Date.now()}-${filename}`,
+          isAnimated: true,
+          skipConversion: true,
+        };
       }
-      // Static GIF falls through to WebP conversion
     }
 
     const compressedBuffer = await sharpInstance.webp({ quality: imageQuality }).toBuffer();
