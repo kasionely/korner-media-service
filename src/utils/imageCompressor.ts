@@ -32,44 +32,13 @@ export async function compressImage({ buffer, filePath, filename, mimetype }: Pr
     const isAnimated = metadata.pages && metadata.pages > 1;
 
     if (mimetype === "image/gif" && isAnimated) {
-      try {
-        const compressedWebp = await sharpInstance
-          .webp({
-            quality: imageQuality,
-            effort: 6,
-            alphaQuality: imageQuality,
-            smartSubsample: true,
-            animated: true,
-          })
-          .toBuffer();
-
-        if (originalSize > 0 && compressedWebp.length >= originalSize) {
-          return {
-            success: true,
-            buffer: buffer!,
-            outputFilename: `${Date.now()}-${filename}`,
-            isAnimated: true,
-            skipConversion: true,
-          };
-        }
-
-        return {
-          success: true,
-          buffer: compressedWebp,
-          outputFilename,
-          isAnimated: true,
-          skipConversion: false,
-        };
-      } catch (error) {
-        console.warn("Error converting animated GIF to WebP, returning original:", error);
-        return {
-          success: true,
-          buffer: buffer!,
-          outputFilename: `${Date.now()}-${filename}`,
-          isAnimated: true,
-          skipConversion: true,
-        };
-      }
+      return {
+        success: true,
+        buffer: buffer!,
+        outputFilename: `${Date.now()}-${filename}`,
+        isAnimated: true,
+        skipConversion: true,
+      };
     }
 
     const compressedBuffer = await sharpInstance.webp({ quality: imageQuality }).toBuffer();
