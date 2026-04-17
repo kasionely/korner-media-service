@@ -8,6 +8,7 @@ dotenv.config();
 
 import { internalAuthMiddleware } from "./middleware/internalAuthMiddleware";
 import monetizeRoutes from "./modules/monetize/monetize.routes";
+import renameUserFilesRoutes from "./modules/rename-user-files/rename-user-files.routes";
 import s3Routes from "./modules/s3/s3.routes";
 import s3PrivateRoutes from "./modules/s3-private/s3-private.routes";
 import storageRoutes from "./modules/storage/storage.routes";
@@ -47,6 +48,7 @@ app.get("/health", (req, res) => {
 
 // Routes
 app.use("/internal/monetize", internalAuthMiddleware, monetizeRoutes);
+app.use("/internal/rename-user-files", internalAuthMiddleware, renameUserFilesRoutes);
 app.use("/api/s3", s3Routes);
 app.use("/api/s3-private", s3PrivateRoutes);
 app.use("/api/storage", storageRoutes);

@@ -3,27 +3,28 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand,
   HeadObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3";
 
 import s3Client from "./s3";
 import yandexS3 from "./ys3";
 
-interface RenameResult {
+interface BucketTarget {
+  name: string;
+  client: S3Client;
+  bucket: string;
+}
+
+export interface RenameResult {
   success: boolean;
   filesRenamed: number;
   errors: string[];
+  destinationNotEmpty?: boolean;
 }
 
-export async function renameUserFilesInAllBuckets(
-  oldUsername: string,
-  newUsername: string
-): Promise<RenameResult> {
-  const errors: string[] = [];
-  let totalFilesRenamed = 0;
-
+function getBuckets(): BucketTarget[] {
   const isProd = process.env.ACTIVE_ENV === "prod";
-
-  const buckets = [
+  return [
     { name: "AWS S3 Public", client: s3Client, bucket: isProd ? "korner-pro" : "korner-lol" },
     {
       name: "AWS S3 Private",
@@ -32,6 +33,42 @@ export async function renameUserFilesInAllBuckets(
     },
     { name: "Yandex S3 Public", client: yandexS3, bucket: isProd ? "korner-pro" : "korner-lol" },
   ];
+}
+
+async function hasAnyObject(client: S3Client, bucket: string, prefix: string): Promise<boolean> {
+  const res = await client.send(
+    new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, MaxKeys: 1 })
+  );
+  return (res.Contents?.length ?? 0) > 0;
+}
+
+export async function renameUserFilesInAllBuckets(
+  oldUsername: string,
+  newUsername: string
+): Promise<RenameResult> {
+  const errors: string[] = [];
+  let totalFilesRenamed = 0;
+  const buckets = getBuckets();
+
+  for (const { name, client, bucket } of buckets) {
+    try {
+      const occupied = await hasAnyObject(client, bucket, `${newUsername}/`);
+      if (occupied) {
+        return {
+          success: false,
+          filesRenamed: 0,
+          errors: [`${name}: destination "${newUsername}/" is not empty`],
+          destinationNotEmpty: true,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        filesRenamed: 0,
+        errors: [`${name}: collision check failed: ${(error as Error).message}`],
+      };
+    }
+  }
 
   for (const { name, client, bucket } of buckets) {
     try {
@@ -49,7 +86,7 @@ export async function renameUserFilesInAllBuckets(
 }
 
 async function renameFilesInBucket(
-  client: any,
+  client: S3Client,
   bucket: string,
   oldUsername: string,
   newUsername: string
@@ -82,11 +119,12 @@ async function renameFilesInBucket(
 
           const copyCommand = new CopyObjectCommand({
             Bucket: bucket,
-            CopySource: `${bucket}/${oldKey}`,
+            CopySource: encodeURI(`${bucket}/${oldKey}`),
             Key: newKey,
             ContentType: headResponse.ContentType,
             CacheControl: headResponse.CacheControl,
             Metadata: headResponse.Metadata,
+            MetadataDirective: "REPLACE",
           });
           await client.send(copyCommand);
 
