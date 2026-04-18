@@ -31,17 +31,16 @@ export async function compressImage({ buffer, filePath, filename, mimetype }: Pr
     const metadata = await sharpInstance.metadata();
     const isAnimated = metadata.pages && metadata.pages > 1;
 
-    if (mimetype === "image/gif" && isAnimated) {
-      return {
-        success: true,
-        buffer: buffer!,
-        outputFilename: `${Date.now()}-${filename}`,
-        isAnimated: true,
-        skipConversion: true,
-      };
+    const webpOptions: sharp.WebpOptions = {
+      quality: imageQuality,
+      effort: 6,
+    };
+
+    if (isAnimated) {
+      webpOptions.loop = 0;
     }
 
-    const compressedBuffer = await sharpInstance.webp({ quality: imageQuality }).toBuffer();
+    const compressedBuffer = await sharpInstance.webp(webpOptions).toBuffer();
 
     if (originalSize > 0 && compressedBuffer.length > originalSize) {
       return {

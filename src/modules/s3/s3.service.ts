@@ -65,9 +65,14 @@ export async function authorizeAndGetUsername(
 
 class S3Service {
   async uploadImage(username: string, file: MulterFile) {
-    const maxImageSize = 5 * 1024 * 1024;
+    const maxImageSize = file.mimetype === "image/gif" ? 15 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxImageSize) {
-      throw new S3Error(ERROR_CODES.BAD_REQUEST, "Image file size exceeds 5 MB limit", 400);
+      const limitMb = file.mimetype === "image/gif" ? 15 : 5;
+      throw new S3Error(
+        ERROR_CODES.BAD_REQUEST,
+        `Image file size exceeds ${limitMb} MB limit`,
+        400
+      );
     }
 
     const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
